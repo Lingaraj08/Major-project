@@ -1,0 +1,383 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Add Medicine - HealthStack</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
+
+    <!-- Favicons -->
+    <link type="image/x-icon" href="{% static 'HealthStack-System/images/Normal/favicon.png' %}" rel="icon" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'HealthStack-System/css/Normal/bootstrap.min.css' %}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+
+    <!-- Fontawesome CSS -->
+    <link rel="stylesheet" href="{% static 'HealthStack-System/plugins/Normal/fontawesome/css/fontawesome.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'HealthStack-System/plugins/Normal/fontawesome/css/all.min.css' %}" />
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{% static 'HealthStack-System/css/Normal/style.css' %}" />
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 0;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        .page-header h1 {
+            font-weight: bold;
+            margin: 0;
+        }
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .form-section-title {
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px 15px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .form-select {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+        .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .button-group {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 40px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .btn-submit:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 40px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .btn-cancel:hover {
+            color: white;
+            background-color: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(108, 117, 125, 0.4);
+        }
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .navbar-custom .navbar-brand {
+            color: #667eea !important;
+            font-weight: bold;
+        }
+        .btn-logout {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+        }
+        .btn-logout:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'pharmacist-dashboard' %}">
+                <i class="fas fa-pills" style="color: #764ba2; margin-right: 10px;"></i>HealthStack Pharmacy
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pharmacist-dashboard' %}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'medicines-list' %}">
+                            <i class="fas fa-list"></i> Medicines List
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link text-muted">
+                            <i class="fas fa-user-circle"></i> {{ user.username }}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-logout text-white" href="{% url 'pharmacist-logout' %}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="container-fluid">
+                <h1><i class="fas fa-plus-circle"></i> Add New Medicine</h1>
+                <p class="mb-0">Fill in all the required fields to add a new medicine to the inventory</p>
+            </div>
+        </div>
+
+        {% include 'message.html' %}
+
+        <!-- Form Container -->
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="form-container">
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <!-- Basic Information -->
+                            <h3 class="form-section-title">
+                                <i class="fas fa-info-circle"></i> Basic Information
+                            </h3>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="id_medicine_id" class="required-field">Medicine ID</label>
+                                    {{ form.medicine_id }}
+                                    <div class="help-text">Leave blank to auto-generate</div>
+                                    {% if form.medicine_id.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.medicine_id.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_name" class="required-field">Medicine Name</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="id_weight">Weight/Strength</label>
+                                    {{ form.weight }}
+                                    <div class="help-text">e.g., 500mg, 10ml, etc.</div>
+                                    {% if form.weight.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.weight.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_medicine_type" class="required-field">Type</label>
+                                    {{ form.medicine_type }}
+                                    {% if form.medicine_type.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.medicine_type.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="id_medicine_category" class="required-field">Category</label>
+                                    {{ form.medicine_category }}
+                                    {% if form.medicine_category.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.medicine_category.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_featured_image">Medicine Image</label>
+                                    {{ form.featured_image }}
+                                    {% if form.featured_image.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.featured_image.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Pricing & Stock -->
+                            <h3 class="form-section-title">
+                                <i class="fas fa-tag"></i> Pricing & Stock
+                            </h3>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="id_price" class="required-field">Price (₹)</label>
+                                    {{ form.price }}
+                                    {% if form.price.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.price.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_stock_quantity" class="required-field">Stock Quantity</label>
+                                    {{ form.stock_quantity }}
+                                    {% if form.stock_quantity.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.stock_quantity.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_quantity">Quantity</label>
+                                    {{ form.quantity }}
+                                    {% if form.quantity.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.quantity.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Prescription & Description -->
+                            <h3 class="form-section-title">
+                                <i class="fas fa-file-prescription"></i> Additional Details
+                            </h3>
+
+                            <div class="form-group">
+                                <label for="id_Prescription_reqiuired" class="required-field">Prescription Required</label>
+                                {{ form.Prescription_reqiuired }}
+                                <div class="help-text">Select "yes" if prescription is required to purchase this medicine</div>
+                                {% if form.Prescription_reqiuired.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.Prescription_reqiuired.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_description">Description</label>
+                                {{ form.description }}
+                                <div class="help-text">Enter medicine details, usage, side effects, etc.</div>
+                                {% if form.description.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Form Errors -->
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger mt-3">
+                                    <strong>Error:</strong>
+                                    {% for error in form.non_field_errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <!-- Buttons -->
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-submit">
+                                    <i class="fas fa-save"></i> Add Medicine
+                                </button>
+                                <a href="{% url 'pharmacist-dashboard' %}" class="btn btn-cancel">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="{% static 'HealthStack-System/js/jquery-3.2.1.min.js' %}"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    <script>
+        // Preview image before upload
+        document.getElementById('id_featured_image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Show a preview if needed
+                    console.log('Image selected');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>

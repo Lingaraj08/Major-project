@@ -8,8 +8,8 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-from hospital.models import Patient
-from pharmacy.models import Medicine, Cart, Order
+from hospital.models import Patient, User
+from pharmacy.models import Medicine, Cart, Order, Pharmacist
 from .utils import searchMedicines
 from django.views.decorators.csrf import csrf_exempt
 
@@ -239,4 +239,165 @@ def decrease_cart(request, pk):
         logout(request)
         messages.error(request, 'Not Authorized')
         return render(request, 'patient-login.html') 
-# Create your views here.
+
+
+# Pharmacist Login View
+@csrf_exempt
+def pharmacist_login(request):
+    if request.method == 'GET':
+        return render(request, 'pharmacist-login.html')
+    elif request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        
+        try:
+            user = User.objects.get(username=username)
+        except:
+            messages.error(request, 'Username does not exist')
+                
+        user = authenticate(username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            if request.user.is_pharmacist:
+                messages.success(request, 'Welcome Pharmacist!')
+                return redirect('pharmacist-dashboard')
+            else:
+                messages.error(request, 'Invalid credentials. Not a Pharmacist')
+                return redirect('pharmacist-logout')   
+        else:
+            messages.error(request, 'Invalid username or password')
+            
+    return render(request, 'pharmacist-login.html')
+
+
+# Pharmacist Logout View
+@csrf_exempt
+def pharmacist_logout(request):
+    logout(request)
+    messages.success(request, 'Logged out successfully')
+    return render(request, 'pharmacist-login.html')
+
+
+# Pharmacist Dashboard - Medicines List
+@csrf_exempt
+@login_required(login_url="pharmacist-login")
+def pharmacist_dashboard(request):
+    if request.user.is_authenticated and request.user.is_pharmacist:
+        try:
+            pharmacist = Pharmacist.objects.get(user=request.user)
+        except:
+            pharmacist = None
+        
+        medicines = Medicine.objects.all()
+        context = {'pharmacist': pharmacist, 'medicines': medicines}
+        return render(request, 'pharmacist-dashboard.html', context)
+    else:
+        logout(request)
+        messages.error(request, 'Not Authorized')
+        return redirect('pharmacist-login')
+
+
+# Medicines List View
+@csrf_exempt
+@login_required(login_url="pharmacist-login")
+def medicines_list(request):
+    if request.user.is_authenticated and request.user.is_pharmacist:
+        try:
+            pharmacist = Pharmacist.objects.get(user=request.user)
+        except:
+            pharmacist = None
+        
+        medicines = Medicine.objects.all()
+        context = {'pharmacist': pharmacist, 'medicines': medicines}
+        return render(request, 'medicines-list.html', context)
+    else:
+        logout(request)
+        messages.error(request, 'Not Authorized')
+        return redirect('pharmacist-login')
+
+
+# Add Medicine View
+@csrf_exempt
+@login_required(login_url="pharmacist-login")
+def add_medicine(request):
+    if request.user.is_authenticated and request.user.is_pharmacist:
+        from .forms import MedicineForm
+        
+        if request.method == 'POST':
+            form = MedicineForm(request.POST, request.FILES)
+            if form.is_valid():
+                medicine = form.save(commit=False)
+                # Generate medicine ID if not provided
+                if not medicine.medicine_id:
+                    import random
+                    import string
+                    medicine.medicine_id = 'MED-' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+                medicine.save()
+                messages.success(request, f'Medicine "{medicine.name}" added successfully!')
+                return redirect('pharmacist-dashboard')
+            else:
+                messages.error(request, 'Error adding medicine. Please check the form.')
+        else:
+            form = MedicineForm()
+        
+        try:
+            pharmacist = Pharmacist.objects.get(user=request.user)
+        except:
+            pharmacist = None
+        
+        context = {'form': form, 'pharmacist': pharmacist}
+        return render(request, 'add-medicine.html', context)
+    else:
+        logout(request)
+        messages.error(request, 'Not Authorized')
+        return redirect('pharmacist-login')
+
+
+# Edit Medicine View
+@csrf_exempt
+@login_required(login_url="pharmacist-login")
+def edit_medicine(request, pk):
+    if request.user.is_authenticated and request.user.is_pharmacist:
+        from .forms import MedicineForm
+        
+        medicine = get_object_or_404(Medicine, serial_number=pk)
+        
+        if request.method == 'POST':
+            form = MedicineForm(request.POST, request.FILES, instance=medicine)
+            if form.is_valid():
+                form.save()
+                messages.success(request, f'Medicine "{medicine.name}" updated successfully!')
+                return redirect('pharmacist-dashboard')
+            else:
+                messages.error(request, 'Error updating medicine. Please check the form.')
+        else:
+            form = MedicineForm(instance=medicine)
+        
+        try:
+            pharmacist = Pharmacist.objects.get(user=request.user)
+        except:
+            pharmacist = None
+        
+        context = {'form': form, 'pharmacist': pharmacist, 'medicine': medicine}
+        return render(request, 'edit-medicine.html', context)
+    else:
+        logout(request)
+        messages.error(request, 'Not Authorized')
+        return redirect('pharmacist-login')
+
+
+# Delete Medicine View
+@csrf_exempt
+@login_required(login_url="pharmacist-login")
+def delete_medicine(request, pk):
+    if request.user.is_authenticated and request.user.is_pharmacist:
+        medicine = get_object_or_404(Medicine, serial_number=pk)
+        medicine_name = medicine.name
+        medicine.delete()
+        messages.success(request, f'Medicine "{medicine_name}" deleted successfully!')
+        return redirect('pharmacist-dashboard')
+    else:
+        logout(request)
+        messages.error(request, 'Not Authorized')
+        return redirect('pharmacist-login')

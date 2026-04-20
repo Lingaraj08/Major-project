@@ -1,0 +1,412 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Medicines List - HealthStack</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
+
+    <!-- Favicons -->
+    <link type="image/x-icon" href="{% static 'HealthStack-System/images/Normal/favicon.png' %}" rel="icon" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'HealthStack-System/css/Normal/bootstrap.min.css' %}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+
+    <!-- Fontawesome CSS -->
+    <link rel="stylesheet" href="{% static 'HealthStack-System/plugins/Normal/fontawesome/css/fontawesome.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'HealthStack-System/plugins/Normal/fontawesome/css/all.min.css' %}" />
+
+    <!-- Data Tables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{% static 'HealthStack-System/css/Normal/style.css' %}" />
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 0;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        .page-header h1 {
+            font-weight: bold;
+            margin: 0;
+        }
+        .medicines-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .section-title {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 25px;
+            font-size: 24px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .navbar-custom .navbar-brand {
+            color: #667eea !important;
+            font-weight: bold;
+        }
+        .btn-logout {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+        }
+        .btn-logout:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .medicine-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .medicine-card:hover {
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+            transform: translateY(-5px);
+        }
+        .medicine-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        .medicine-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .medicine-price {
+            font-size: 20px;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .medicine-type-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-bottom: 10px;
+        }
+        .badge-tablets {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        .badge-syrup {
+            background-color: #fce4ec;
+            color: #c2185b;
+        }
+        .badge-capsule {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .badge-general {
+            background-color: #e0f2f1;
+            color: #00796b;
+        }
+        .medicine-category {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .stock-status {
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .stock-low {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .stock-medium {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+        .stock-high {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .prescription-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .filter-section {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .table {
+            margin: 0;
+        }
+        .table thead {
+            background-color: #667eea;
+            color: white;
+        }
+        .table tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'pharmacist-dashboard' %}">
+                <i class="fas fa-pills" style="color: #764ba2; margin-right: 10px;"></i>HealthStack Pharmacy
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pharmacist-dashboard' %}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'medicines-list' %}">
+                            <i class="fas fa-list"></i> Medicines List
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link text-muted">
+                            <i class="fas fa-user-circle"></i> {{ user.username }}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-logout text-white" href="{% url 'pharmacist-logout' %}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="container-fluid">
+                <h1><i class="fas fa-list"></i> Medicines Inventory</h1>
+                <p class="mb-0">Complete list of available medicines in the pharmacy</p>
+            </div>
+        </div>
+
+        {% include 'message.html' %}
+
+        <!-- Medicines Container -->
+        <div class="medicines-container">
+            <h2 class="section-title">
+                <i class="fas fa-pills"></i> All Medicines ({{ medicines.count }})
+            </h2>
+
+            <!-- Toggle View -->
+            <div class="mb-3">
+                <button class="btn btn-sm btn-outline-primary" id="gridView" onclick="setView('grid')">
+                    <i class="fas fa-th"></i> Grid View
+                </button>
+                <button class="btn btn-sm btn-outline-primary" id="tableView" onclick="setView('table')">
+                    <i class="fas fa-list"></i> Table View
+                </button>
+            </div>
+
+            <!-- Grid View -->
+            <div id="gridContainer">
+                <div class="row" id="medicinesGrid">
+                    {% for medicine in medicines %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="medicine-card">
+                            {% if medicine.featured_image %}
+                                <img src="{{ medicine.featured_image.url }}" alt="{{ medicine.name }}" class="medicine-image">
+                            {% else %}
+                                <div class="medicine-image">
+                                    <i class="fas fa-pills" style="font-size: 50px;"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="medicine-name">{{ medicine.name }}</div>
+                            
+                            <div class="medicine-type-badge badge-{{ medicine.medicine_type }}">
+                                {{ medicine.get_medicine_type_display }}
+                            </div>
+                            
+                            <div class="medicine-category">
+                                <i class="fas fa-tag"></i> {{ medicine.get_medicine_category_display }}
+                            </div>
+                            
+                            {% if medicine.weight %}
+                            <div class="medicine-category">
+                                <i class="fas fa-weight"></i> {{ medicine.weight }}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="medicine-price">₹{{ medicine.price }}</div>
+                            
+                            <div>
+                                <span class="stock-status 
+                                    {% if medicine.stock_quantity <= 10 %}stock-low
+                                    {% elif medicine.stock_quantity <= 50 %}stock-medium
+                                    {% else %}stock-high{% endif %}">
+                                    Stock: {{ medicine.stock_quantity }} units
+                                </span>
+                            </div>
+                            
+                            {% if medicine.Prescription_reqiuired == 'yes' %}
+                                <div class="prescription-badge bg-danger text-white">
+                                    <i class="fas fa-file-prescription"></i> Prescription Required
+                                </div>
+                            {% else %}
+                                <div class="prescription-badge bg-success text-white">
+                                    <i class="fas fa-check-circle"></i> OTC Available
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info text-center" style="padding: 40px;">
+                            <i class="fas fa-inbox" style="font-size: 40px; margin-bottom: 15px; display: block;"></i>
+                            <h5>No medicines found</h5>
+                            <p>There are no medicines in the system at the moment.</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Table View (hidden by default) -->
+            <div id="tableContainer" style="display: none;">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped" id="medicinesTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Medicine Name</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Weight</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Prescription</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for medicine in medicines %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ medicine.name }}</td>
+                                <td><span class="medicine-type-badge badge-{{ medicine.medicine_type }}">{{ medicine.get_medicine_type_display }}</span></td>
+                                <td>{{ medicine.get_medicine_category_display }}</td>
+                                <td>{{ medicine.weight }}</td>
+                                <td><strong>₹{{ medicine.price }}</strong></td>
+                                <td>
+                                    <span class="stock-status 
+                                        {% if medicine.stock_quantity <= 10 %}stock-low
+                                        {% elif medicine.stock_quantity <= 50 %}stock-medium
+                                        {% else %}stock-high{% endif %}">
+                                        {{ medicine.stock_quantity }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if medicine.Prescription_reqiuired == 'yes' %}
+                                        <span class="badge bg-danger">Yes</span>
+                                    {% else %}
+                                        <span class="badge bg-success">No</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="{% static 'HealthStack-System/js/jquery-3.2.1.min.js' %}"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    <!-- Data Tables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        let currentView = 'grid';
+
+        function setView(view) {
+            currentView = view;
+            if (view === 'grid') {
+                document.getElementById('gridContainer').style.display = 'block';
+                document.getElementById('tableContainer').style.display = 'none';
+                document.getElementById('gridView').classList.add('btn-primary');
+                document.getElementById('gridView').classList.remove('btn-outline-primary');
+                document.getElementById('tableView').classList.remove('btn-primary');
+                document.getElementById('tableView').classList.add('btn-outline-primary');
+            } else {
+                document.getElementById('gridContainer').style.display = 'none';
+                document.getElementById('tableContainer').style.display = 'block';
+                document.getElementById('tableView').classList.add('btn-primary');
+                document.getElementById('tableView').classList.remove('btn-outline-primary');
+                document.getElementById('gridView').classList.remove('btn-primary');
+                document.getElementById('gridView').classList.add('btn-outline-primary');
+                
+                if (!$.fn.DataTable.isDataTable('#medicinesTable')) {
+                    $('#medicinesTable').DataTable({
+                        "pageLength": 10,
+                        "ordering": true,
+                        "searching": true,
+                        "info": true,
+                        "lengthChange": true
+                    });
+                }
+            }
+        }
+
+        // Set initial view
+        document.getElementById('gridView').classList.add('btn-primary');
+    </script>
+</body>
+</html>
